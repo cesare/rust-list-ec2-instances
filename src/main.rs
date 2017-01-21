@@ -1,6 +1,6 @@
 extern crate rusoto;
 use rusoto::{ProfileProvider, Region};
-use rusoto::ec2::{Ec2Client, DescribeInstancesRequest};
+use rusoto::ec2::{Ec2Client, DescribeInstancesRequest, Instance};
 
 extern crate rustc_serialize;
 extern crate docopt;
@@ -37,6 +37,10 @@ fn find_provider(args: &Args) -> Result<ProfileProvider, String> {
     }
 }
 
+fn show_instance(i: &Instance) {
+    println!("{:?} {:?} {:?}", i.instance_id, i.state, i.public_ip_address);
+}
+
 fn main() {
     let args: Args = parse_args();
 
@@ -48,7 +52,9 @@ fn main() {
     match client.describe_instances(&request) {
         Ok(results) => {
             results.reservations.map(|rs| for r in rs {
-                println!("{:?}", r);
+                r.instances.map(|is| for i in is {
+                    show_instance(&i);
+                });
             });
         }
         Err(error) => println!("{:?}", error),
