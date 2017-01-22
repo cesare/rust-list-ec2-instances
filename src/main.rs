@@ -12,7 +12,7 @@ use std::str::FromStr;
 const USAGE: &'static str = "
 Usage:
     list-ec2-instances
-    list-ec2-instances --profile=<profile> --region=<region>
+    list-ec2-instances [--profile=<profile>] [--region=<region>]
     list-ec2-instances --help
 
 Options:
