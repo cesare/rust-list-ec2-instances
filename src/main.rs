@@ -1,6 +1,7 @@
 extern crate rusoto;
 use rusoto::{ProfileProvider, Region};
 use rusoto::ec2::{Ec2Client, DescribeInstancesRequest, Instance};
+use rusoto::default_tls_client;
 
 extern crate rustc_serialize;
 extern crate docopt;
@@ -37,22 +38,23 @@ fn find_provider(args: &Args) -> Result<ProfileProvider, String> {
                 provider.set_profile(name.to_string());
             }
             Ok(provider)
-        },
-        Err(_) => Err(String::from("Failed to find provider"))
+        }
+        Err(_) => Err(String::from("Failed to find provider")),
     }
 }
 
 fn find_region(args: &Args) -> Result<Region, String> {
     match args.flag_region {
-        Some(ref value) => {
-            Region::from_str(value).or_else(|e| Err(String::from(e.description())))
-        }
+        Some(ref value) => Region::from_str(value).or_else(|e| Err(String::from(e.description()))),
         None => Ok(Region::ApNortheast1),
     }
 }
 
 fn show_instance(i: &Instance) {
-    println!("{:?} {:?} {:?}", i.instance_id, i.state, i.public_ip_address);
+    println!("{:?} {:?} {:?}",
+             i.instance_id,
+             i.state,
+             i.public_ip_address);
 }
 
 fn main() {
@@ -60,7 +62,7 @@ fn main() {
 
     let provider = find_provider(&args).unwrap();
     let region = find_region(&args).unwrap();
-    let client = Ec2Client::new(provider, region);
+    let client = Ec2Client::new(default_tls_client().unwrap(), provider, region);
     let request = DescribeInstancesRequest::default();
 
     match client.describe_instances(&request) {

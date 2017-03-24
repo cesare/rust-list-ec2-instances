@@ -5,5 +5,5 @@ authors = ["SAWADA Tadashi <cesare@mayverse.jp>"]
 
 [dependencies]
 docopt = "0.7"
-rusoto = {version = "0.20", features = ["ec2"]}
+rusoto = {version = "0.23", features = ["ec2"]}
 rustc-serialize = "0.3"
