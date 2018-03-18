@@ -15,22 +15,25 @@ use futures::future::Future;
 use std::str::FromStr;
 
 struct InstanceStatus {
-    id: String,
-    ip_address: String,
+    id: Option<String>,
+    ip_address: Option<String>,
 }
 
 impl InstanceStatus {
     fn from_instance(instance: &Instance) -> InstanceStatus {
         InstanceStatus {
-            id: instance.instance_id.clone().unwrap_or("(unknown)".to_owned()),
-            ip_address: instance.public_ip_address.clone().unwrap_or("".to_owned()),
+            id: instance.instance_id.clone(),
+            ip_address: instance.public_ip_address.clone(),
         }
     }
 }
 
 impl std::fmt::Display for InstanceStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{} {}", self.id, self.ip_address)
+        write!(f, "{} {}",
+            self.id.as_ref().unwrap_or(&"(unknown)".to_owned()),
+            self.ip_address.as_ref().unwrap_or(&"-".to_owned())
+        )
     }
 }
 
