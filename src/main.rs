@@ -1,6 +1,6 @@
 extern crate rusoto_core;
 extern crate rusoto_ec2;
-use rusoto_core::{ProfileProvider, Region};
+use rusoto_core::{ProfileProvider, Region, ParseRegionError, CredentialsError};
 use rusoto_core::reactor::RequestDispatcher;
 use rusoto_ec2::{DescribeInstancesRequest, DescribeInstancesResult, Ec2, Ec2Client, Instance,
                  Reservation};
@@ -12,7 +12,6 @@ use docopt::Docopt;
 extern crate futures;
 use futures::future::Future;
 
-use std::error::Error;
 use std::str::FromStr;
 
 struct InstanceStatus {
@@ -58,23 +57,16 @@ fn parse_args() -> Args {
         .unwrap_or_else(|e| e.exit())
 }
 
-fn find_provider(args: &Args) -> Result<ProfileProvider, String> {
-    match ProfileProvider::new() {
-        Ok(mut provider) => {
-            if let Some(ref name) = args.flag_profile {
-                provider.set_profile(name.to_string());
-            }
-            Ok(provider)
-        }
-        Err(_) => Err(String::from("Failed to find provider")),
-    }
+fn find_provider(args: &Args) -> Result<ProfileProvider, CredentialsError> {
+    let mut provider = ProfileProvider::new()?;
+    args.flag_profile.as_ref()
+        .map(|profile| provider.set_profile(profile.to_owned()));
+    Ok(provider)
 }
 
-fn find_region(args: &Args) -> Result<Region, String> {
-    match args.flag_region {
-        Some(ref value) => Region::from_str(value).or_else(|e| Err(String::from(e.description()))),
-        None => Ok(Region::ApNortheast1),
-    }
+fn find_region(args: &Args) -> Result<Region, ParseRegionError> {
+    args.flag_region.as_ref()
+        .map_or(Ok(Region::ApNortheast1), |value| Region::from_str(&value))
 }
 
 fn show_instances(is: &Vec<Instance>) {
