@@ -40,7 +40,7 @@ impl InstanceStatus {
 
 impl std::fmt::Display for InstanceStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{} {} {}",
+        write!(f, " {:<10}  {:^15}  {:<}",
             self.id.as_ref().unwrap_or(&"(unknown)".to_owned()),
             self.ip_address.as_ref().unwrap_or(&"-".to_owned()),
             self.name.as_ref().unwrap_or(&"-".to_owned())
