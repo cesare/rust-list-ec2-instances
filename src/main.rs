@@ -17,6 +17,7 @@ use std::str::FromStr;
 struct InstanceStatus {
     id: Option<String>,
     ip_address: Option<String>,
+    name: Option<String>,
 }
 
 impl InstanceStatus {
@@ -24,15 +25,25 @@ impl InstanceStatus {
         InstanceStatus {
             id: instance.instance_id.clone(),
             ip_address: instance.public_ip_address.clone(),
+            name: Self::find_instance_name(instance),
         }
+    }
+
+    fn find_instance_name(instance: &Instance) -> Option<String> {
+        instance.tags.as_ref().and_then(|tags|
+            tags.iter()
+                .find(|tag| tag.key.as_ref().map_or(false, |key| key == "Name"))
+                .and_then(|tag| tag.value.clone())
+        )
     }
 }
 
 impl std::fmt::Display for InstanceStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{} {}",
+        write!(f, "{} {} {}",
             self.id.as_ref().unwrap_or(&"(unknown)".to_owned()),
-            self.ip_address.as_ref().unwrap_or(&"-".to_owned())
+            self.ip_address.as_ref().unwrap_or(&"-".to_owned()),
+            self.name.as_ref().unwrap_or(&"-".to_owned())
         )
     }
 }
