@@ -6,6 +6,7 @@ authors = ["SAWADA Tadashi <cesare@mayverse.jp>"]
 [dependencies]
 docopt = "0.7"
 futures = "0.1.18"
-rusoto_core = "0.32.0"
-rusoto_ec2 = "0.32.0"
+rusoto_core = "0.33.1"
+rusoto_credential = "0.12.0"
+rusoto_ec2 = "0.33.1"
 rustc-serialize = "0.3.24"

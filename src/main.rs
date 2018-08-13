@@ -1,7 +1,11 @@
 extern crate rusoto_core;
+extern crate rusoto_credential;
 extern crate rusoto_ec2;
-use rusoto_core::{ProfileProvider, Region, ParseRegionError, CredentialsError};
-use rusoto_core::reactor::RequestDispatcher;
+
+use rusoto_credential::ProfileProvider;
+use rusoto_core::{Region, CredentialsError};
+use rusoto_core::region::ParseRegionError;
+use rusoto_core::request::HttpClient;
 use rusoto_ec2::{DescribeInstancesRequest, DescribeInstancesResult, Ec2, Ec2Client, Instance,
                  Reservation};
 
@@ -104,11 +108,11 @@ fn main() {
 
     let provider = find_provider(&args).unwrap();
     let region = find_region(&args).unwrap();
-    let client = Ec2Client::new(RequestDispatcher::default(), provider, region);
+    let client = Ec2Client::new_with(HttpClient::new().unwrap(), provider, region);
     let request = DescribeInstancesRequest::default();
 
     let _ = client
-        .describe_instances(&request)
+        .describe_instances(request)
         .map(|result| show_result(result))
         .map_err(|e| eprintln!("Error: {}", e))
         .wait();
