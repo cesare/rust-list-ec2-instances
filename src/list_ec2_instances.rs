@@ -4,7 +4,7 @@ extern crate rusoto_ec2;
 use std::default::Default;
 
 use rusoto_core::Region;
-use rusoto_ec2::{Ec2, Ec2Client, DescribeInstancesRequest, Instance, Reservation};
+use rusoto_ec2::{Filter, Ec2, Ec2Client, DescribeInstancesRequest, Instance, Reservation};
 
 fn show_instances(is: &Vec<Instance>) {
     for i in is {
@@ -18,9 +18,22 @@ fn show_reservations(rs: &Vec<Reservation>) {
     }
 }
 
+fn create_request() -> DescribeInstancesRequest {
+    let filter = Filter {
+        name: Some("instance-state-name".to_string()),
+        values: Some(vec!["running".to_string()])
+    };
+
+    let request = DescribeInstancesRequest {
+        filters: Some(vec![filter]),
+        ..Default::default()
+    };
+    request
+}
+
 fn main() {
   let client = Ec2Client::new(Region::ApNortheast1);
-  let request: DescribeInstancesRequest = Default::default();
+  let request = create_request();
 
   match client.describe_instances(request).sync() {
     Ok(output) => {
