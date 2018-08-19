@@ -4,11 +4,20 @@ extern crate rusoto_ec2;
 use std::default::Default;
 
 use rusoto_core::Region;
-use rusoto_ec2::{Filter, Ec2, Ec2Client, DescribeInstancesRequest, Instance, Reservation};
+use rusoto_ec2::{Filter, Ec2, Ec2Client, DescribeInstancesRequest, Instance, Reservation, Tag};
+
+fn find_name_in_tags(tags: &Option<Vec<Tag>>) -> Option<String> {
+    tags.as_ref()
+        .and_then(|ts| ts.iter().find(|&tag| tag.key == Some("Name".to_string())))
+        .and_then(|tag| tag.value.as_ref().and_then(|ref v| Some(v.to_string())))
+}
 
 fn show_instances(is: &Vec<Instance>) {
     for i in is {
-        println!("{:?}", i.tags);
+        let default = "-".to_string();
+        let public_ip_address = i.public_ip_address.as_ref().unwrap_or(&default);
+        let name = find_name_in_tags(&i.tags).unwrap_or("-".to_string());
+        println!("{}\t{}", name, public_ip_address);
     }
 }
 
