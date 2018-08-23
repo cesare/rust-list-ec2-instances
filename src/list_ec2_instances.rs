@@ -12,10 +12,13 @@ fn find_name_in_tags(tags: &Option<Vec<Tag>>) -> Option<String> {
         .and_then(|tag| tag.value.as_ref().and_then(|ref v| Some(v.to_string())))
 }
 
+fn find_public_ip_address(instance: &Instance) -> Option<String> {
+    instance.public_ip_address.as_ref().map(|s| s.to_string())
+}
+
 fn show_instances(is: &Vec<Instance>) {
     for i in is {
-        let default = "-".to_string();
-        let public_ip_address = i.public_ip_address.as_ref().unwrap_or(&default);
+        let public_ip_address = find_public_ip_address(i).unwrap_or("-".to_string());
         let name = find_name_in_tags(&i.tags).unwrap_or("-".to_string());
         println!("{}\t{}", name, public_ip_address);
     }
