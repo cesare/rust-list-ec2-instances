@@ -51,11 +51,10 @@ fn create_request() -> DescribeInstancesRequest {
         values: Some(vec!["running".to_string()])
     };
 
-    let request = DescribeInstancesRequest {
+    DescribeInstancesRequest {
         filters: Some(vec![filter]),
         ..Default::default()
-    };
-    request
+    }
 }
 
 fn main() {
