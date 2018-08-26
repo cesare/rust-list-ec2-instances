@@ -68,11 +68,11 @@ fn main() {
         Some(reservations) => {
             show_reservations(&reservations)
         }
-        None => println!("No reservation"),
+        None => eprintln!("No reservation"),
       }
     }
     Err(error) => {
-      println!("Error: {:?}", error);
+      eprintln!("Error: {:?}", error);
     }
   }
 }
