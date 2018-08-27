@@ -67,17 +67,7 @@ fn main() {
   let client = Ec2Client::new(Region::ApNortheast1);
   let request = create_request();
 
-  match client.describe_instances(request).sync() {
-    Ok(output) => {
-      match output.reservations {
-        Some(reservations) => {
-            show_reservations(&reservations)
-        }
-        None => eprintln!("No reservation"),
-      }
-    }
-    Err(error) => {
-      eprintln!("Error: {:?}", error);
-    }
-  }
+  let _result = client.describe_instances(request).sync()
+    .map(|result| result.reservations.map(|rs| show_reservations(&rs)))
+    .map_err(|error| eprintln!("Error: {:?}", error));
 }
