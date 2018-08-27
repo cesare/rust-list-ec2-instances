@@ -13,9 +13,10 @@ struct InstanceSummary {
 
 impl fmt::Display for InstanceSummary {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let public_ip_address = self.find_public_ip_address().unwrap_or("-".to_string());
-        let name = self.find_name_in_tags().unwrap_or("-".to_string());
-        let id = self.find_instance_id().unwrap_or("-".to_string());
+        let missing_value = || "-".to_string();
+        let public_ip_address = self.find_public_ip_address().unwrap_or_else(missing_value);
+        let name = self.find_name_in_tags().unwrap_or_else(missing_value);
+        let id = self.find_instance_id().unwrap_or_else(missing_value);
         write!(f, "{}\t{}\t{}", id, name, public_ip_address)
     }
 }
