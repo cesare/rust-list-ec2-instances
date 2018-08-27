@@ -15,7 +15,8 @@ impl fmt::Display for InstanceSummary {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let public_ip_address = self.find_public_ip_address().unwrap_or("-".to_string());
         let name = self.find_name_in_tags().unwrap_or("-".to_string());
-        write!(f, "{}\t{}", name, public_ip_address)
+        let id = self.find_instance_id().unwrap_or("-".to_string());
+        write!(f, "{}\t{}\t{}", id, name, public_ip_address)
     }
 }
 
@@ -28,6 +29,10 @@ impl InstanceSummary {
 
     fn find_public_ip_address(&self) -> Option<String> {
         self.instance.public_ip_address.as_ref().map(|s| s.to_string())
+    }
+
+    fn find_instance_id(&self) -> Option<String> {
+        self.instance.instance_id.as_ref().map(|s| s.to_string())
     }
 }
 
