@@ -51,24 +51,31 @@ fn show_reservations(rs: &Vec<Reservation>) {
     }
 }
 
-fn create_request() -> DescribeInstancesRequest {
-    let filter = Filter {
+fn create_running_instance_filter() -> Filter {
+    Filter {
         name: Some("instance-state-name".to_string()),
         values: Some(vec!["running".to_string()])
-    };
+    }
+}
 
-    let tag_name_filter = Filter {
+fn create_tag_name_filter<S>(pattern: S) -> Filter where S: Into<String>{
+    let name_pattern = format!("*{}*", pattern.into());
+     Filter {
         name: Some("tag:Name".to_string()),
-        values : Some(vec!["foo*".to_string()]),
-    };
+        values : Some(vec![name_pattern]),
+    }
+}
 
-    let filters = Some(vec![
-        filter,
-        tag_name_filter,
-    ]);
+fn create_filters() -> Option<Vec<Filter>> {
+    Some(vec![
+        create_running_instance_filter(),
+        create_tag_name_filter("foo"),
+    ])
+}
 
+fn create_request() -> DescribeInstancesRequest {
     DescribeInstancesRequest {
-        filters: filters,
+        filters: create_filters(),
         ..Default::default()
     }
 }
