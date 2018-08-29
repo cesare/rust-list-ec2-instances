@@ -57,8 +57,18 @@ fn create_request() -> DescribeInstancesRequest {
         values: Some(vec!["running".to_string()])
     };
 
+    let tag_name_filter = Filter {
+        name: Some("tag:Name".to_string()),
+        values : Some(vec!["foo*".to_string()]),
+    };
+
+    let filters = Some(vec![
+        filter,
+        tag_name_filter,
+    ]);
+
     DescribeInstancesRequest {
-        filters: Some(vec![filter]),
+        filters: filters,
         ..Default::default()
     }
 }
