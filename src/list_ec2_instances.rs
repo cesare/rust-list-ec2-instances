@@ -1,11 +1,19 @@
+extern crate getopts;
 extern crate rusoto_core;
 extern crate rusoto_ec2;
 
 use std::default::Default;
+use std::env;
 use std::fmt;
 
+use getopts::Options;
 use rusoto_core::Region;
 use rusoto_ec2::{Filter, Ec2, Ec2Client, DescribeInstancesRequest, Instance, Reservation};
+
+#[derive(Debug)]
+struct Args {
+    name_pattern: Option<String>,
+}
 
 struct InstanceSummary {
     instance: Instance,
@@ -58,33 +66,50 @@ fn create_running_instance_filter() -> Filter {
     }
 }
 
-fn create_tag_name_filter<S>(pattern: S) -> Filter where S: Into<String>{
-    let name_pattern = format!("*{}*", pattern.into());
+fn create_tag_name_filter(pattern: &String) -> Filter {
+    let name_pattern = format!("*{}*", pattern);
      Filter {
         name: Some("tag:Name".to_string()),
         values : Some(vec![name_pattern]),
     }
 }
 
-fn create_filters() -> Option<Vec<Filter>> {
-    Some(vec![
+fn create_filters(args: &Args) -> Option<Vec<Filter>> {
+    let mut filters = vec![
         create_running_instance_filter(),
-        create_tag_name_filter("foo"),
-    ])
+    ];
+
+    if let Some(ref pattern) = args.name_pattern {
+        filters.push(create_tag_name_filter(pattern));
+    }
+    Some(filters)
 }
 
-fn create_request() -> DescribeInstancesRequest {
+fn create_request(args: &Args) -> DescribeInstancesRequest {
     DescribeInstancesRequest {
-        filters: create_filters(),
+        filters: create_filters(args),
         ..Default::default()
     }
 }
 
-fn main() {
-  let client = Ec2Client::new(Region::ApNortheast1);
-  let request = create_request();
+fn parse_args() -> Args {
+    let args: Vec<String> = env::args().collect();
 
-  let _result = client.describe_instances(request).sync()
-    .map(|result| result.reservations.map(|rs| show_reservations(&rs)))
-    .map_err(|error| eprintln!("Error: {:?}", error));
+    let mut options = Options::new();
+    options.optopt("n", "name-pattern", "specify pattern of instance name", "PATTERN");
+
+    let matches = options.parse(&args[1..]).unwrap_or_else(|f| panic!(f.to_string()));
+    Args {
+        name_pattern: matches.opt_str("n"),
+    }
+}
+
+fn main() {
+    let args = parse_args();
+    let client = Ec2Client::new(Region::ApNortheast1);
+    let request = create_request(&args);
+
+    let _result = client.describe_instances(request).sync()
+        .map(|result| result.reservations.map(|rs| show_reservations(&rs)))
+        .map_err(|error| eprintln!("Error: {:?}", error));
 }
