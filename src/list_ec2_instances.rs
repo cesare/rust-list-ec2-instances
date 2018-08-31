@@ -92,13 +92,25 @@ fn create_request(args: &Args) -> DescribeInstancesRequest {
     }
 }
 
+fn print_usage(program: &str, options: Options) {
+    let brief = format!("Usage: {} [options]", program);
+    print!("{}", options.usage(&brief));
+}
+
 fn parse_args() -> Args {
     let args: Vec<String> = env::args().collect();
 
     let mut options = Options::new();
     options.optopt("n", "name-pattern", "specify pattern of instance name", "PATTERN");
+    options.optflag("h", "help", "print usage");
 
     let matches = options.parse(&args[1..]).unwrap_or_else(|f| panic!(f.to_string()));
+    if matches.opt_present("h") {
+        let program = args[0].clone();
+        print_usage(&program, options);
+        std::process::exit(0);
+    }
+
     Args {
         name_pattern: matches.opt_str("n"),
     }
