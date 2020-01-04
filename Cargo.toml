@@ -8,9 +8,7 @@ name = "list_ec2_instances"
 path = "src/list_ec2_instances.rs"
 
 [dependencies]
-getopts = "0.2.18"
-futures = "0.1.18"
-rusoto_core = "0.33.1"
-rusoto_credential = "0.12.0"
-rusoto_ec2 = "0.33.1"
+getopts = "0.2.21"
+rusoto_core = "0.42.0"
+rusoto_ec2 = "0.42.0"
 rustc-serialize = "0.3.24"
